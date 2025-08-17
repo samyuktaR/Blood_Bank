@@ -1,2 +1,2 @@
 # Blood_Bank
-A web application that registers users to donate or receive blood. The program updates the recipient status from “requested” to “accepted” on receiving blood.
+Web application for managing blood donations and requests. Allows users to register as donors or recipients, and updates recipient status from ‘requested’ to ‘accepted’ upon successful donation.
