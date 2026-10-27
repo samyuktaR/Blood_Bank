@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Request for ' + ${recipient.patientName}, true)}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('recipients')}"></header>
+<main class="container">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <div class="page-head">
+        <h1><span class="bg-badge" th:text="${recipient.bloodGroup.label}">O+</span>
+            <span th:text="${recipient.patientName}">Patient</span></h1>
+        <div class="actions">
+            <a class="btn btn-ghost" th:href="@{/recipients/{id}/edit(id=${recipient.id})}">Edit</a>
+            <form method="post" th:action="@{/recipients/{id}/delete(id=${recipient.id})}" data-confirm="Delete this request?">
+                <button type="submit" class="btn btn-danger">Delete</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="grid-sidebar">
+        <aside class="card">
+            <dl class="details">
+                <dt>Status</dt><dd><span class="pill" th:classappend="${recipient.status.cssClass}" th:text="${recipient.status.label}">Open</span></dd>
+                <dt>Urgency</dt><dd><span class="pill" th:classappend="${recipient.urgency.cssClass}" th:text="${recipient.urgency.label}">High</span></dd>
+                <dt>Units</dt><dd th:text="${recipient.unitsRequired}">1</dd>
+                <dt>Hospital</dt><dd th:text="${recipient.hospital} + ', ' + ${recipient.city}">Hospital</dd>
+                <dt>Contact</dt><dd th:text="${recipient.contactName} + ' · ' + ${recipient.contactPhone}">Contact</dd>
+                <dt>Can receive from</dt>
+                <dd><span th:each="g : ${recipient.compatibleDonorGroups()}" class="chip" th:text="${g.label}">O-</span></dd>
+            </dl>
+
+            <form class="status-form" method="post" th:action="@{/recipients/{id}/status(id=${recipient.id})}">
+                <label for="status-select">Update status</label>
+                <select id="status-select" name="status">
+                    <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}"
+                            th:selected="${s == recipient.status}">Open</option>
+                </select>
+                <button type="submit" class="btn btn-sm">Save</button>
+            </form>
+        </aside>
+
+        <section class="card">
+            <h2 th:text="${#lists.size(result.matches())} + ' compatible donors within ' + ${#numbers.formatDecimal(result.radiusKm(), 1, 0)} + ' km'">Donors</h2>
+            <form th:replace="~{fragments/radius :: form('/recipients/' + ${recipient.id}, ${result.radiusKm()})}"></form>
+
+            <div class="map" data-match-map th:data-lat="${recipient.latitude}" th:data-lng="${recipient.longitude}"
+                 th:data-radius-km="${result.radiusKm()}" th:data-label="${recipient.hospital}"></div>
+
+            <p class="empty" th:if="${#lists.isEmpty(result.matches())}">No eligible compatible donors in this radius. Try widening the search.</p>
+            <p class="hint" th:if="${result.deferredCount() > 0}"
+               th:text="${result.deferredCount()} + ' more compatible donor(s) nearby gave within the last ' + ${minDays} + ' days.'">deferred</p>
+
+            <ul class="match-list">
+                <li th:each="m : ${result.matches()}" class="match"
+                    th:data-match-lat="${m.donor().latitude}" th:data-match-lng="${m.donor().longitude}"
+                    th:data-match-label="${m.donor().name}">
+                    <span th:replace="~{fragments/layout :: bg(${m.donor().bloodGroup})}"></span>
+                    <div class="match-main">
+                        <a th:href="@{/donors/{id}(id=${m.donor().id})}" th:text="${m.donor().name}">Donor</a>
+                        <div class="muted" th:text="${m.donor().city} + ' · ' + ${m.donor().phone} + ' · ' + ${m.donor().email}">details</div>
+                    </div>
+                    <div class="match-side">
+                        <span class="pill" th:classappend="${m.exactMatch()} ? 'status-ok' : 'status-muted'"
+                              th:text="${m.exactMatch()} ? 'Exact match' : 'Compatible'">Exact</span>
+                        <strong th:text="${#numbers.formatDecimal(m.distanceKm(), 1, 1)} + ' km'">1 km</strong>
+                        <span class="muted" th:text="${#numbers.formatDecimal(m.distanceMiles(), 1, 1)} + ' mi'">1 mi</span>
+                    </div>
+                </li>
+            </ul>
+        </section>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

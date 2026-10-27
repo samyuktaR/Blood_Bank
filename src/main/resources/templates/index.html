@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Home', false)}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('home')}"></header>
+<main class="container">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+
+    <section class="hero">
+        <div>
+            <h1>Find compatible blood donors close to the patient.</h1>
+            <p class="lead">Donors register their blood group and location. Post a request and see every
+                eligible, compatible donor nearby, nearest first.</p>
+            <a class="btn btn-primary" th:href="@{/recipients/new}">Request blood</a>
+            <a class="btn btn-ghost" th:href="@{/donors/new}">Register as a donor</a>
+        </div>
+        <dl class="stat-grid">
+            <div class="stat"><dt>Registered donors</dt><dd th:text="${stats.donors()}">0</dd></div>
+            <div class="stat"><dt>Available now</dt><dd th:text="${stats.availableDonors()}">0</dd></div>
+            <div class="stat"><dt>Open requests</dt><dd th:text="${stats.openRequests()}">0</dd></div>
+        </dl>
+    </section>
+
+    <div class="grid-2">
+        <section class="card">
+            <h2>Open requests</h2>
+            <p class="muted" th:if="${#lists.isEmpty(stats.recentOpenRequests())}">No open requests right now.</p>
+            <ul class="request-list">
+                <li th:each="r : ${stats.recentOpenRequests()}">
+                    <a th:href="@{/recipients/{id}(id=${r.id})}">
+                        <span th:replace="~{fragments/layout :: bg(${r.bloodGroup})}"></span>
+                        <strong th:text="${r.hospital}">Hospital</strong>
+                        <span class="pill" th:classappend="${r.urgency.cssClass}" th:text="${r.urgency.label}">High</span>
+                    </a>
+                </li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Available donors by group</h2>
+            <div class="group-bars">
+                <a th:each="g : ${bloodGroups}" class="group-bar" th:href="@{/donors(bloodGroup=${g.name()})}">
+                    <span class="group-label" th:text="${g.label}">O+</span>
+                    <span class="group-count" th:text="${stats.availableByGroup().get(g)}">0</span>
+                </a>
+            </div>
+        </section>
+    </div>
+
+    <section class="card">
+        <h2>Who can give to whom</h2>
+        <div class="table-wrap">
+            <table class="matrix">
+                <tr>
+                    <th>Donor &rarr; Recipient</th>
+                    <th th:each="r : ${bloodGroups}" th:text="${r.label}">O+</th>
+                </tr>
+                <tr th:each="d : ${bloodGroups}">
+                    <th th:text="${d.label}">O-</th>
+                    <td th:each="r : ${bloodGroups}" th:classappend="${d.canDonateTo(r)} ? 'yes'"
+                        th:text="${d.canDonateTo(r)} ? '✓' : ''"></td>
+                </tr>
+            </table>
+        </div>
+    </section>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

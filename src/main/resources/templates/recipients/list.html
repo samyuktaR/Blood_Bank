@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Blood requests', false)}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('recipients')}"></header>
+<main class="container">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="page-head">
+        <h1>Blood requests</h1>
+        <a class="btn btn-primary" th:href="@{/recipients/new}">New request</a>
+    </div>
+
+    <form class="filter-bar" method="get" th:action="@{/recipients}">
+        <label for="status">Status</label>
+        <select id="status" name="status" onchange="this.form.submit()">
+            <option value="">All</option>
+            <option th:each="s : ${statuses}" th:value="${s.name()}" th:text="${s.label}"
+                    th:selected="${s == selectedStatus}">Open</option>
+        </select>
+        <label for="bloodGroup">Blood group</label>
+        <select id="bloodGroup" name="bloodGroup" onchange="this.form.submit()">
+            <option value="">All groups</option>
+            <option th:each="g : ${bloodGroups}" th:value="${g.name()}" th:text="${g.label}"
+                    th:selected="${g == selectedGroup}">O+</option>
+        </select>
+    </form>
+
+    <div class="card" th:if="${#lists.isEmpty(recipients)}"><p class="empty">No requests match.</p></div>
+
+    <div class="card table-card" th:unless="${#lists.isEmpty(recipients)}">
+        <table class="data">
+            <thead>
+            <tr><th>Patient</th><th>Group</th><th>Units</th><th>Urgency</th><th>Hospital</th><th>Status</th><th></th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="r : ${recipients}">
+                <td><a th:href="@{/recipients/{id}(id=${r.id})}" th:text="${r.patientName}">Patient</a></td>
+                <td><span th:replace="~{fragments/layout :: bg(${r.bloodGroup})}"></span></td>
+                <td th:text="${r.unitsRequired}">1</td>
+                <td><span class="pill" th:classappend="${r.urgency.cssClass}" th:text="${r.urgency.label}">High</span></td>
+                <td th:text="${r.hospital} + ', ' + ${r.city}">Hospital</td>
+                <td><span class="pill" th:classappend="${r.status.cssClass}" th:text="${r.status.label}">Open</span></td>
+                <td><a th:if="${r.status.name() == 'OPEN'}" class="btn btn-sm"
+                       th:href="@{/recipients/{id}(id=${r.id})}">Find donors</a></td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

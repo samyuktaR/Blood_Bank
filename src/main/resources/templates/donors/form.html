@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head(${donor.id == null} ? 'Register as a donor' : 'Edit donor', true)}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('donors')}"></header>
+<main class="container narrow">
+    <h1 th:text="${donor.id == null} ? 'Register as a donor' : 'Edit donor'">Register</h1>
+
+    <form class="card form" method="post" th:object="${donor}" novalidate
+          th:action="${donor.id == null} ? @{/donors} : @{/donors/{id}(id=${donor.id})}">
+
+        <div class="form-error" th:if="${#fields.hasErrors('*')}">Please fix the highlighted fields.</div>
+
+        <div class="field-row">
+            <div class="field" th:classappend="${#fields.hasErrors('name')} ? 'has-error'">
+                <label for="name">Full name</label>
+                <input type="text" th:field="*{name}">
+                <p class="error" th:if="${#fields.hasErrors('name')}" th:errors="*{name}"></p>
+            </div>
+            <div class="field small" th:classappend="${#fields.hasErrors('age')} ? 'has-error'">
+                <label for="age">Age</label>
+                <input type="number" th:field="*{age}" min="18" max="65">
+                <p class="error" th:if="${#fields.hasErrors('age')}" th:errors="*{age}"></p>
+            </div>
+        </div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('bloodGroup')} ? 'has-error'">
+            <span class="label">Blood group</span>
+            <div class="group-picker">
+                <label th:each="g : ${bloodGroups}" class="group-option">
+                    <input type="radio" th:field="*{bloodGroup}" th:value="${g.name()}">
+                    <span th:text="${g.label}">O+</span>
+                </label>
+            </div>
+            <p class="error" th:if="${#fields.hasErrors('bloodGroup')}" th:errors="*{bloodGroup}"></p>
+        </div>
+
+        <div class="field-row">
+            <div class="field" th:classappend="${#fields.hasErrors('phone')} ? 'has-error'">
+                <label for="phone">Phone</label>
+                <input type="tel" th:field="*{phone}" placeholder="(480) 555-0100">
+                <p class="error" th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}"></p>
+            </div>
+            <div class="field" th:classappend="${#fields.hasErrors('email')} ? 'has-error'">
+                <label for="email">Email</label>
+                <input type="email" th:field="*{email}">
+                <p class="error" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></p>
+            </div>
+        </div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('city')} ? 'has-error'">
+            <label for="city">City</label>
+            <input type="text" th:field="*{city}">
+            <p class="error" th:if="${#fields.hasErrors('city')}" th:errors="*{city}"></p>
+        </div>
+
+        <div th:replace="~{fragments/location :: picker}"></div>
+
+        <div class="field" th:classappend="${#fields.hasErrors('lastDonationDate')} ? 'has-error'">
+            <label for="lastDonationDate">Last donation date (optional)</label>
+            <input type="date" th:field="*{lastDonationDate}" th:max="${today}">
+            <p class="error" th:if="${#fields.hasErrors('lastDonationDate')}" th:errors="*{lastDonationDate}"></p>
+        </div>
+
+        <label class="check">
+            <input type="checkbox" th:field="*{available}">
+            <span>I'm available to be contacted by patients and hospitals</span>
+        </label>
+
+        <div class="form-actions">
+            <a class="btn btn-ghost" th:href="@{/donors}">Cancel</a>
+            <button type="submit" class="btn btn-primary"
+                    th:text="${donor.id == null} ? 'Register' : 'Save changes'">Register</button>
+        </div>
+    </form>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

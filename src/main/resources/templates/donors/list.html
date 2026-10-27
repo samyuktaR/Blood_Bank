@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Donors', false)}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('donors')}"></header>
+<main class="container">
+    <div th:replace="~{fragments/layout :: flash}"></div>
+    <div class="page-head">
+        <h1>Donors</h1>
+        <a class="btn btn-primary" th:href="@{/donors/new}">Register a donor</a>
+    </div>
+
+    <form class="filter-bar" method="get" th:action="@{/donors}">
+        <label for="bloodGroup">Blood group</label>
+        <select id="bloodGroup" name="bloodGroup" onchange="this.form.submit()">
+            <option value="">All groups</option>
+            <option th:each="g : ${bloodGroups}" th:value="${g.name()}" th:text="${g.label}"
+                    th:selected="${g == selectedGroup}">O+</option>
+        </select>
+    </form>
+
+    <div class="card" th:if="${#lists.isEmpty(donors)}">
+        <p class="empty">No donors yet.</p>
+    </div>
+
+    <div class="card table-card" th:unless="${#lists.isEmpty(donors)}">
+        <table class="data">
+            <thead>
+            <tr><th>Name</th><th>Group</th><th>City</th><th>Last donation</th><th>Status</th></tr>
+            </thead>
+            <tbody>
+            <tr th:each="d : ${donors}">
+                <td><a th:href="@{/donors/{id}(id=${d.id})}" th:text="${d.name}">Name</a></td>
+                <td><span th:replace="~{fragments/layout :: bg(${d.bloodGroup})}"></span></td>
+                <td th:text="${d.city}">City</td>
+                <td th:text="${d.lastDonationDate != null} ? ${#temporals.format(d.lastDonationDate, 'MMM d, yyyy')} : 'Never'">Never</td>
+                <td>
+                    <span th:if="${!d.available}" class="pill status-muted">Unavailable</span>
+                    <span th:if="${d.available and d.isEligibleOn(today, minDays)}" class="pill status-ok">Can donate</span>
+                    <span th:if="${d.available and !d.isEligibleOn(today, minDays)}" class="pill status-wait"
+                          th:text="'Wait until ' + ${#temporals.format(d.nextEligibleDate(minDays), 'MMM d')}">Wait</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</main>
+<footer th:replace="~{fragments/layout :: footer}"></footer>
+</body>
+</html>

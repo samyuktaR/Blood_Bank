@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/layout :: head('Error', false)}"></head>
+<body>
+<header th:replace="~{fragments/layout :: header('')}"></header>
+<main class="container narrow">
+    <section class="card error-page">
+        <h1 th:text="${status == 404} ? 'Not found' : 'Something went wrong'">Error</h1>
+        <p class="muted" th:text="${message}">Details</p>
+        <a class="btn btn-primary" th:href="@{/}">Back to home</a>
+    </section>
+</main>
+</body>
+</html>

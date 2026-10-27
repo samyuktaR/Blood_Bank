@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head th:fragment="head(title, maps)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' | Blood Bank'">Blood Bank</title>
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <th:block th:if="${maps}">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    </th:block>
+    <script th:src="@{/js/app.js}" defer></script>
+</head>
+
+<body>
+
+<header th:fragment="header(active)" class="site-header">
+    <div class="container header-inner">
+        <a class="brand" th:href="@{/}">Blood Bank</a>
+        <nav class="nav">
+            <a th:href="@{/donors}" th:classappend="${active == 'donors'} ? 'active'">Donors</a>
+            <a th:href="@{/recipients}" th:classappend="${active == 'recipients'} ? 'active'">Requests</a>
+            <a class="btn btn-sm btn-ghost" th:href="@{/donors/new}">Become a donor</a>
+            <a class="btn btn-sm btn-primary" th:href="@{/recipients/new}">Request blood</a>
+        </nav>
+    </div>
+</header>
+
+<div th:fragment="flash" th:if="${message}" class="flash" role="status" th:text="${message}">Saved.</div>
+
+<span th:fragment="bg(group)" class="bg-badge" th:text="${group.label}">O+</span>
+
+<footer th:fragment="footer" class="site-footer">
+    <div class="container">
+        Matches use red cell ABO/Rh compatibility and straight-line distance.
+        Always confirm with a crossmatch at the hospital.
+    </div>
+</footer>
+
+</body>
+</html>

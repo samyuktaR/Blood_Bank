@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<div th:fragment="picker" class="location-picker">
+    <div class="location-tools">
+        <div class="location-search">
+            <input type="search" id="location-query" placeholder="Search an address or place" autocomplete="off">
+            <button type="button" class="btn btn-sm" id="location-search-btn">Search</button>
+        </div>
+        <button type="button" class="btn btn-sm btn-ghost" id="use-my-location">Use my current location</button>
+    </div>
+    <div class="map" data-location-picker data-lat-input="latitude" data-lng-input="longitude"></div>
+    <p class="hint" id="location-status" aria-live="polite">Click the map, drag the pin, search, or type coordinates.</p>
+
+    <div class="field-row">
+        <div class="field" th:classappend="${#fields.hasErrors('latitude')} ? 'has-error'">
+            <label for="latitude">Latitude</label>
+            <input type="number" th:field="*{latitude}" step="any" min="-90" max="90">
+            <p class="error" th:if="${#fields.hasErrors('latitude')}" th:errors="*{latitude}"></p>
+        </div>
+        <div class="field" th:classappend="${#fields.hasErrors('longitude')} ? 'has-error'">
+            <label for="longitude">Longitude</label>
+            <input type="number" th:field="*{longitude}" step="any" min="-180" max="180">
+            <p class="error" th:if="${#fields.hasErrors('longitude')}" th:errors="*{longitude}"></p>
+        </div>
+    </div>
+</div>
+</body>
+</html>
